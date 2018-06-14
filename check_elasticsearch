@@ -147,8 +147,10 @@ class ElasticSearchCheck(NagiosCheck):
         # Request a bunch of useful numbers that we export as perfdata.  
         # Details like the number of get, search, and indexing 
         # operations come from here.
-        es_stats = get_json(r'http://%s:%d/%s_nodes/'
+        es_stats_all = get_json(r'http://%s:%d/%s_nodes/'
                             '_all/stats' % (host, port, prefix))
+        es_stats = get_json(r'http://%s:%d/%s_nodes/_local/'
+                            'stats/_all' % (host, port, prefix))
 
         myid = es_stats['nodes'].keys()[0]
 
@@ -159,7 +161,7 @@ class ElasticSearchCheck(NagiosCheck):
         # the number of master-eligible nodes ourselves.
         n_mnodes = 0
         for esid in es_state['nodes']:
-            if 'master' in es_stats['nodes'][esid]['roles']:
+            if 'master' in es_stats_all['nodes'][esid]['roles']:
                 n_mnodes += 1
 
         n_active_shards = es_health['active_shards']
